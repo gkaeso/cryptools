@@ -1,21 +1,9 @@
 import unittest
-import uuid
 
 import cryptools.cryptools as cryptools
 
 
-class TestBase(unittest.TestCase):
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.keys: list[str] = [str(uuid.uuid4()), str(uuid.uuid4())]
-
-    def tearDown(self) -> None:
-        super().tearDown()
-        self.keys.clear()
-
-
-class TestAtbash(TestBase):
+class TestAtbash(unittest.TestCase):
 
     def test_encode_only_letters(self) -> None:
         plaintext, ciphertext = 'This message shall remain private', 'GSRH NVHHZTV HSZOO IVNZRM KIREZGV'
@@ -34,7 +22,7 @@ class TestAtbash(TestBase):
         self.assertEqual(cryptools.AtbashCipher().decode(ciphertext), plaintext)
 
 
-class TestCipher(TestBase):
+class TestCipher(unittest.TestCase):
 
     def test_constructor(self) -> None:
         cryptools.Cipher()
