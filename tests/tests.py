@@ -36,17 +36,59 @@ class TestCaesar(unittest.TestCase):
             25: 'SGHR LDRRZFD RGZKK QDLZHM OQHUZSD',
             26: 'THIS MESSAGE SHALL REMAIN PRIVATE',
         }
+        self.plaintext_any_character = '#>This messag@ shall rema5!in private'
+        self.ciphertexts_any_character = {
+            0: '#>THIS MESSAG@ SHALL REMA5!IN PRIVATE',
+            1: '#>UIJT NFTTBH@ TIBMM SFNB5!JO QSJWBUF',
+            2: '#>VJKU OGUUCI@ UJCNN TGOC5!KP RTKXCVG',
+            3: '#>WKLV PHVVDJ@ VKDOO UHPD5!LQ SULYDWH',
+            4: '#>XLMW QIWWEK@ WLEPP VIQE5!MR TVMZEXI',
+            5: '#>YMNX RJXXFL@ XMFQQ WJRF5!NS UWNAFYJ',
+            6: '#>ZNOY SKYYGM@ YNGRR XKSG5!OT VXOBGZK',
+            7: '#>AOPZ TLZZHN@ ZOHSS YLTH5!PU WYPCHAL',
+            8: '#>BPQA UMAAIO@ APITT ZMUI5!QV XZQDIBM',
+            9: '#>CQRB VNBBJP@ BQJUU ANVJ5!RW YAREJCN',
+            10: '#>DRSC WOCCKQ@ CRKVV BOWK5!SX ZBSFKDO',
+            11: '#>ESTD XPDDLR@ DSLWW CPXL5!TY ACTGLEP',
+            12: '#>FTUE YQEEMS@ ETMXX DQYM5!UZ BDUHMFQ',
+            13: '#>GUVF ZRFFNT@ FUNYY ERZN5!VA CEVINGR',
+            14: '#>HVWG ASGGOU@ GVOZZ FSAO5!WB DFWJOHS',
+            15: '#>IWXH BTHHPV@ HWPAA GTBP5!XC EGXKPIT',
+            16: '#>JXYI CUIIQW@ IXQBB HUCQ5!YD FHYLQJU',
+            17: '#>KYZJ DVJJRX@ JYRCC IVDR5!ZE GIZMRKV',
+            18: '#>LZAK EWKKSY@ KZSDD JWES5!AF HJANSLW',
+            19: '#>MABL FXLLTZ@ LATEE KXFT5!BG IKBOTMX',
+            20: '#>NBCM GYMMUA@ MBUFF LYGU5!CH JLCPUNY',
+            21: '#>OCDN HZNNVB@ NCVGG MZHV5!DI KMDQVOZ',
+            22: '#>PDEO IAOOWC@ ODWHH NAIW5!EJ LNERWPA',
+            23: '#>QEFP JBPPXD@ PEXII OBJX5!FK MOFSXQB',
+            24: '#>RFGQ KCQQYE@ QFYJJ PCKY5!GL NPGTYRC',
+            25: '#>SGHR LDRRZF@ RGZKK QDLZ5!HM OQHUZSD',
+            26: '#>THIS MESSAG@ SHALL REMA5!IN PRIVATE',
+        }
 
-    def test_encode(self) -> None:
+    def test_encode_only_letters(self) -> None:
         for i in range(27):
             self.assertEqual(cryptools.CaesarCipher(i).encode(
                 self.plaintext_only_letters), self.ciphertexts_only_letters[i]
             )
 
-    def test_decode(self) -> None:
+    def test_decode_only_letters(self) -> None:
         for i in range(27):
             self.assertEqual(cryptools.CaesarCipher(i).decode(
                 self.ciphertexts_only_letters[i]), self.plaintext_only_letters.upper()
+            )
+
+    def test_encode_any_character(self) -> None:
+        for i in range(27):
+            self.assertEqual(cryptools.CaesarCipher(i).encode(
+                self.plaintext_any_character), self.ciphertexts_any_character[i]
+            )
+
+    def test_decode_any_character(self) -> None:
+        for i in range(27):
+            self.assertEqual(cryptools.CaesarCipher(i).decode(
+                self.ciphertexts_any_character[i]), self.plaintext_any_character.upper()
             )
 
 
