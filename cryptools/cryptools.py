@@ -30,8 +30,10 @@ class CaesarCipher(Cipher):
         super().__init__()
         self.key: int = key
 
-    def _process(self, text: str, key: int) -> str:
+    def _process(self, text: str, decode: bool) -> str:
         processed_text: list[str] = []
+
+        key: int = self.key if not decode else -1 * self.key
 
         for char in text.upper():
             if char.isalpha():
@@ -45,7 +47,7 @@ class CaesarCipher(Cipher):
         return ''.join(processed_text)
 
     def encode(self, plaintext: str) -> str:
-        return self._process(plaintext, self.key) if self.key != 0 else plaintext.upper()
+        return self._process(plaintext, decode=False) if self.key != 0 else plaintext.upper()
 
     def decode(self, ciphertext: str) -> str:
-        return self._process(ciphertext, -1 * self.key)
+        return self._process(ciphertext, decode=True)
