@@ -12,7 +12,7 @@ class Cipher:
     def __init__(self):
         super().__init__()
 
-    def encode(self, plaintext: str) -> str:
+    async def encode(self, plaintext: str) -> str:
         """
         This method encodes the input text.
 
@@ -26,7 +26,7 @@ class Cipher:
         """
         raise NotImplementedError
 
-    def decode(self, ciphertext: str) -> str:
+    async def decode(self, ciphertext: str) -> str:
         """
         This method decodes the input text.
 
@@ -58,7 +58,7 @@ class AtbashCipher(Cipher):
         super().__init__()
         self._table = str.maketrans(string.ascii_uppercase, string.ascii_uppercase[::-1])
 
-    def encode(self, plaintext: str) -> str:
+    async def encode(self, plaintext: str) -> str:
         """
         This method encodes the input text.
 
@@ -72,7 +72,7 @@ class AtbashCipher(Cipher):
         """
         return str.translate(plaintext.upper(), self._table)
 
-    def decode(self, ciphertext: str) -> str:
+    async def decode(self, ciphertext: str) -> str:
         """
         This method decodes the input text.
 
@@ -122,7 +122,7 @@ class CaesarCipher(Cipher):
 
         return ''.join(processed_text)
 
-    def encode(self, plaintext: str) -> str:
+    async def encode(self, plaintext: str) -> str:
         """
         This method encodes the input text.
 
@@ -136,7 +136,7 @@ class CaesarCipher(Cipher):
         """
         return self._process(plaintext, decode=False) if self.key != 0 else plaintext.upper()
 
-    def decode(self, ciphertext: str) -> str:
+    async def decode(self, ciphertext: str) -> str:
         """
         This method decodes the input text.
 
@@ -180,8 +180,8 @@ class AffineCipher(Cipher):
         if gcd(self.keyA, len(string.ascii_uppercase)) != 1:
             raise ValueError(f'Input keyA={self.keyA} is not co-prime with alphabet length {len(string.ascii_uppercase)}.')
 
-    def encode(self, plaintext: str) -> str:
+    async def encode(self, plaintext: str) -> str:
         return str.translate(plaintext.upper(), str.maketrans(string.ascii_uppercase, self._new_alphabet))
 
-    def decode(self, ciphertext: str) -> str:
+    async def decode(self, ciphertext: str) -> str:
         return str.translate(ciphertext, str.maketrans(self._new_alphabet, string.ascii_uppercase))

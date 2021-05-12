@@ -3,9 +3,10 @@ import unittest
 import cryptools.cryptools as cryptools
 
 
-class TestAffine(unittest.TestCase):
+class TestAffine(unittest.IsolatedAsyncioTestCase):
 
-    def setUp(self) -> None:
+    async def asyncSetUp(self) -> None:
+        await super().asyncSetUp()
         self.plaintext_only_letters = 'This message shall remain private'
         self.ciphertexts_only_letters = {
             '3-1': 'GWZD LNDDBTN DWBII ANLBZO UAZMBGN',
@@ -27,42 +28,43 @@ class TestAffine(unittest.TestCase):
         with self.assertRaises(ValueError):
             cryptools.AffineCipher(2, 2)    # not co-prime
 
-    def test_encode_only_letters(self) -> None:
+    async def test_encode_only_letters(self) -> None:
         for key in self.ciphertexts_only_letters.keys():
             keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
             self.assertEqual(
-                cryptools.AffineCipher(keyA, keyB).encode(self.plaintext_only_letters),
+                await cryptools.AffineCipher(keyA, keyB).encode(self.plaintext_only_letters),
                 self.ciphertexts_only_letters[key]
             )
 
-    def test_decode_only_letters(self) -> None:
+    async def test_decode_only_letters(self) -> None:
         for key in self.ciphertexts_only_letters.keys():
             keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
             self.assertEqual(
-                cryptools.AffineCipher(keyA, keyB).decode(self.ciphertexts_only_letters[key]),
+                await cryptools.AffineCipher(keyA, keyB).decode(self.ciphertexts_only_letters[key]),
                 self.plaintext_only_letters.upper()
             )
 
-    def test_encode_any_character(self) -> None:
+    async def test_encode_any_character(self) -> None:
         for key in self.ciphertexts_any_character.keys():
             keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
             self.assertEqual(
-                cryptools.AffineCipher(keyA, keyB).encode(self.plaintext_any_character),
+                await cryptools.AffineCipher(keyA, keyB).encode(self.plaintext_any_character),
                 self.ciphertexts_any_character[key]
             )
 
-    def test_decode_any_character(self) -> None:
+    async def test_decode_any_character(self) -> None:
         for key in self.ciphertexts_any_character.keys():
             keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
             self.assertEqual(
-                cryptools.AffineCipher(keyA, keyB).decode(self.ciphertexts_any_character[key]),
+                await cryptools.AffineCipher(keyA, keyB).decode(self.ciphertexts_any_character[key]),
                 self.plaintext_any_character.upper()
             )
 
 
-class TestCaesar(unittest.TestCase):
+class TestCaesar(unittest.IsolatedAsyncioTestCase):
 
-    def setUp(self) -> None:
+    async def asyncSetUp(self) -> None:
+        await super().asyncSetUp()
         self.plaintext_only_letters = 'This message shall remain private'
         self.ciphertexts_only_letters = {
             0: 'THIS MESSAGE SHALL REMAIN PRIVATE',
@@ -124,59 +126,63 @@ class TestCaesar(unittest.TestCase):
             26: '#>THIS MESSAG@ SHALL REMA5!IN PRIVATE',
         }
 
-    def test_encode_only_letters(self) -> None:
+    async def test_encode_only_letters(self) -> None:
         for i in range(27):
-            self.assertEqual(cryptools.CaesarCipher(i).encode(
-                self.plaintext_only_letters), self.ciphertexts_only_letters[i]
+            self.assertEqual(
+                await cryptools.CaesarCipher(i).encode(self.plaintext_only_letters),
+                self.ciphertexts_only_letters[i]
             )
 
-    def test_decode_only_letters(self) -> None:
+    async def test_decode_only_letters(self) -> None:
         for i in range(27):
-            self.assertEqual(cryptools.CaesarCipher(i).decode(
-                self.ciphertexts_only_letters[i]), self.plaintext_only_letters.upper()
+            self.assertEqual(
+                await cryptools.CaesarCipher(i).decode(self.ciphertexts_only_letters[i]),
+                self.plaintext_only_letters.upper()
             )
 
-    def test_encode_any_character(self) -> None:
+    async def test_encode_any_character(self) -> None:
         for i in range(27):
-            self.assertEqual(cryptools.CaesarCipher(i).encode(
-                self.plaintext_any_character), self.ciphertexts_any_character[i]
+            self.assertEqual(
+                await cryptools.CaesarCipher(i).encode(self.plaintext_any_character),
+                self.ciphertexts_any_character[i]
             )
 
-    def test_decode_any_character(self) -> None:
+    async def test_decode_any_character(self) -> None:
         for i in range(27):
-            self.assertEqual(cryptools.CaesarCipher(i).decode(
-                self.ciphertexts_any_character[i]), self.plaintext_any_character.upper()
+            self.assertEqual(
+                await cryptools.CaesarCipher(i).decode(self.ciphertexts_any_character[i]),
+                self.plaintext_any_character.upper()
             )
 
 
-class TestAtbash(unittest.TestCase):
+class TestAtbash(unittest.IsolatedAsyncioTestCase):
 
-    def test_encode_only_letters(self) -> None:
+    async def test_encode_only_letters(self) -> None:
         plaintext, ciphertext = 'This message shall remain private', 'GSRH NVHHZTV HSZOO IVNZRM KIREZGV'
-        self.assertEqual(cryptools.AtbashCipher().encode(plaintext), ciphertext)
+        self.assertEqual(await cryptools.AtbashCipher().encode(plaintext), ciphertext)
 
-    def test_decode_only_letters(self) -> None:
+    async def test_decode_only_letters(self) -> None:
         plaintext, ciphertext = 'THIS MESSAGE SHALL REMAIN PRIVATE', 'gsrh nvhhztv hszoo ivnzrm kirezgv'
-        self.assertEqual(cryptools.AtbashCipher().decode(ciphertext), plaintext)
+        self.assertEqual(await cryptools.AtbashCipher().decode(ciphertext), plaintext)
 
-    def test_encode_any_character(self) -> None:
+    async def test_encode_any_character(self) -> None:
         plaintext, ciphertext = '#>This messag@ shall rema5!in private!', '#>GSRH NVHHZT@ HSZOO IVNZ5!RM KIREZGV!'
-        self.assertEqual(cryptools.AtbashCipher().encode(plaintext), ciphertext)
+        self.assertEqual(await cryptools.AtbashCipher().encode(plaintext), ciphertext)
 
-    def test_decode_any_character(self) -> None:
+    async def test_decode_any_character(self) -> None:
         plaintext, ciphertext = '#>THIS MESSAG@ SHALL REMA5!IN PRIVATE!', '#>gsrh nvhhzt@ hszoo ivnz5!rm kirezgv!'
-        self.assertEqual(cryptools.AtbashCipher().decode(ciphertext), plaintext)
+        self.assertEqual(await cryptools.AtbashCipher().decode(ciphertext), plaintext)
 
 
-class TestCipher(unittest.TestCase):
+class TestCipher(unittest.IsolatedAsyncioTestCase):
 
     def test_constructor(self) -> None:
         cryptools.Cipher()
 
-    def test_encode(self) -> None:
+    async def test_encode(self) -> None:
         with self.assertRaises(NotImplementedError):
-            cryptools.Cipher().encode('plaintext')
+            await cryptools.Cipher().encode('plaintext')
 
-    def test_decode(self) -> None:
+    async def test_decode(self) -> None:
         with self.assertRaises(NotImplementedError):
-            cryptools.Cipher().decode('ciphertext')
+            await cryptools.Cipher().decode('ciphertext')
