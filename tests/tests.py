@@ -3,6 +3,63 @@ import unittest
 import cryptools.cryptools as cryptools
 
 
+class TestAffine(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.plaintext_only_letters = 'This message shall remain private'
+        self.ciphertexts_only_letters = {
+            '3-1': 'GWZD LNDDBTN DWBII ANLBZO UAZMBGN',
+            '3-2': 'HXAE MOEECUO EXCJJ BOMCAP VBANCHO',
+            '5-7': 'YQVT PBTTHLB TQHKK OBPHVU EOVIHYB',
+            '5-8': 'ZRWU QCUUIMC URILL PCQIWV FPWJIZC',
+            '9-3': 'SOXJ HNJJDFN JODYY ANHDXQ IAXKDSN',
+        }
+        self.plaintext_any_character = '#>This messag@ shall rema5!in private'
+        self.ciphertexts_any_character = {
+            '3-1': '#>GWZD LNDDBT@ DWBII ANLB5!ZO UAZMBGN',
+            '3-2': '#>HXAE MOEECU@ EXCJJ BOMC5!AP VBANCHO',
+            '5-7': '#>YQVT PBTTHL@ TQHKK OBPH5!VU EOVIHYB',
+            '5-8': '#>ZRWU QCUUIM@ URILL PCQI5!WV FPWJIZC',
+            '9-3': '#>SOXJ HNJJDF@ JODYY ANHD5!XQ IAXKDSN',
+        }
+
+    def test_invalid_argument(self) -> None:
+        with self.assertRaises(ValueError):
+            cryptools.AffineCipher(2, 2)    # not co-prime
+
+    def test_encode_only_letters(self) -> None:
+        for key in self.ciphertexts_only_letters.keys():
+            keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
+            self.assertEqual(
+                cryptools.AffineCipher(keyA, keyB).encode(self.plaintext_only_letters),
+                self.ciphertexts_only_letters[key]
+            )
+
+    def test_decode_only_letters(self) -> None:
+        for key in self.ciphertexts_only_letters.keys():
+            keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
+            self.assertEqual(
+                cryptools.AffineCipher(keyA, keyB).decode(self.ciphertexts_only_letters[key]),
+                self.plaintext_only_letters.upper()
+            )
+
+    def test_encode_any_character(self) -> None:
+        for key in self.ciphertexts_any_character.keys():
+            keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
+            self.assertEqual(
+                cryptools.AffineCipher(keyA, keyB).encode(self.plaintext_any_character),
+                self.ciphertexts_any_character[key]
+            )
+
+    def test_decode_any_character(self) -> None:
+        for key in self.ciphertexts_any_character.keys():
+            keyA, keyB = int(key.split('-')[0]), int(key.split('-')[1])
+            self.assertEqual(
+                cryptools.AffineCipher(keyA, keyB).decode(self.ciphertexts_any_character[key]),
+                self.plaintext_any_character.upper()
+            )
+
+
 class TestCaesar(unittest.TestCase):
 
     def setUp(self) -> None:

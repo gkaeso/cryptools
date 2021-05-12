@@ -1,5 +1,7 @@
 import string
 
+from .utils import gcd
+
 
 class Cipher:
     """
@@ -147,3 +149,39 @@ class CaesarCipher(Cipher):
             The plain text.
         """
         return self._process(ciphertext, decode=True)
+
+
+class AffineCipher(Cipher):
+    """
+    Affine cipher.
+
+    This is a mono-alphabetic substitution cipher.
+
+    The plain text alphabet is mathematically transformed into another alphabet. Two keys are necessary to perform
+    the affine encryption: both keys must be co-prime to one another (their greatest common divisor must be 1).
+
+    The encryption algorithm is as below:
+    - E(x) = (ax + b) mod m where a,b are the keys and m the length of the alphabet.
+
+    The decryption algorithm uses modal inverse:
+    - D(x) = c(x - b) mod m where c is the modular multiplicative inverse of a, b is the key and M the length of the alphabet.
+    - c is the modular multiplicative inverse of a if: ac = 1 mod m.
+
+    For implementation's sake, the decryption algorithm in this class uses the same translation table as encryption.
+    """
+    def __init__(self, keyA: int, keyB: int):
+        super().__init__()
+        self.keyA: int = keyA
+        self.keyB: int = keyB
+        self._validate()
+        self._new_alphabet: str = ''.join(string.ascii_uppercase[(i * self.keyA + self.keyB) % len(string.ascii_uppercase)] for i in range(len(string.ascii_uppercase)))
+
+    def _validate(self) -> None:
+        if gcd(self.keyA, len(string.ascii_uppercase)) != 1:
+            raise ValueError(f'Input keyA={self.keyA} is not co-prime with alphabet length {len(string.ascii_uppercase)}.')
+
+    def encode(self, plaintext: str) -> str:
+        return str.translate(plaintext.upper(), str.maketrans(string.ascii_uppercase, self._new_alphabet))
+
+    def decode(self, ciphertext: str) -> str:
+        return str.translate(ciphertext, str.maketrans(self._new_alphabet, string.ascii_uppercase))
