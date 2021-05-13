@@ -1,53 +1,100 @@
 from http import HTTPStatus
 import json
 import typing
+from typing import Optional, Awaitable, Any
 
 import tornado.web
 import tornado.ioloop
+from tornado import httputil
 
 import cryptools
-
 
 PORT = 8000
 
 
-class AtbashCipher(tornado.web.RequestHandler):
-    async def post(self):
-        is_valid, error = self._validate()
-        if not is_valid:
-            self.set_status(HTTPStatus.BAD_REQUEST)
-            self.write({'error': error})
+class BaseCipherHandler(tornado.web.RequestHandler):
+    def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
+        pass
+
+    def _validate_post(self, expected_args: dict[str, Any] = None) -> None:
+        is_valid: bool = True
+        error: str = ''
+
+        required_args = {'text': str, 'encrypt': bool}
+        if expected_args:
+            required_args.update(expected_args)
+
+        body: dict = json.loads(self.request.body)
+
+        if not all(arg in body for arg in required_args.keys()):
+            is_valid, error = False, 'Missing body argument'
         else:
-            c = self.get_status()
+            for arg_name, arg_type in required_args.items():
+                if not isinstance(body[arg_name], arg_type):
+                    is_valid, error = False, f"Invalid type for body argument '{arg_name}'"
+                    break
+
+        self.is_valid, self.error = is_valid, error
+
+
+class AtbashCipherHandler(BaseCipherHandler):
+    async def post(self):
+        self._validate_post()
+
+        if self.is_valid:
             req_body: dict = json.loads(self.request.body)
-            c = self.get_status()
             try:
                 if req_body['encrypt']:
                     text = await cryptools.AtbashCipher().encode(req_body['text'])
-                    c = self.get_status()
                 else:
                     text = await cryptools.AtbashCipher().decode(req_body['text'])
-                    c = self.get_status()
                 self.write({'text': text})
             except Exception:
                 self.set_status(HTTPStatus.INTERNAL_SERVER_ERROR)
                 self.write({'error': 'Unexpected error'})
+        else:
+            self.set_status(HTTPStatus.BAD_REQUEST)
+            self.write({'error': self.error})
 
-    def _validate(self) -> tuple[bool, str]:
-        is_valid: bool = True
-        error: str = ''
 
-        body: dict = json.loads(self.request.body)
-        expected_args: list[str] = ['text', 'encrypt']
+class CaesarCipherHandler(BaseCipherHandler):
+    async def post(self):
+        self._validate_post({'key': int})
 
-        if not all(arg in body for arg in expected_args):
-            is_valid, error = False, 'Missing body argument'
-        elif not isinstance(body['text'], str):
-            is_valid, error = False, "Body argument 'text' is not a string"
-        elif not isinstance(body['encrypt'], bool):
-            is_valid, error = False, "Body argument 'encrypt' is not a boolean"
+        if self.is_valid:
+            req_body: dict = json.loads(self.request.body)
+            try:
+                if req_body['encrypt']:
+                    text = await cryptools.CaesarCipher(req_body['key']).encode(req_body['text'])
+                else:
+                    text = await cryptools.CaesarCipher(req_body['key']).decode(req_body['text'])
+                self.write({'text': text})
+            except Exception:
+                self.set_status(HTTPStatus.INTERNAL_SERVER_ERROR)
+                self.write({'error': 'Unexpected error'})
+        else:
+            self.set_status(HTTPStatus.BAD_REQUEST)
+            self.write({'error': self.error})
 
-        return is_valid, error
+
+class AffineCipherHandler(BaseCipherHandler):
+    async def post(self):
+        self._validate_post({'keys': list})
+
+        if self.is_valid:
+            req_body: dict = json.loads(self.request.body)
+            try:
+                if req_body['encrypt']:
+                    text = await cryptools.AffineCipher(*req_body['keys']).encode(req_body['text'])
+                else:
+                    text = await cryptools.AffineCipher(*req_body['keys']).decode(req_body['text'])
+                self.write({'text': text})
+            except Exception as exc:
+                self.set_status(HTTPStatus.INTERNAL_SERVER_ERROR)
+                self.write({'error': 'Unexpected error'})
+        else:
+            self.set_status(HTTPStatus.BAD_REQUEST)
+            self.write({'error': self.error})
 
 
 class IndexHandler(tornado.web.RequestHandler):
@@ -58,7 +105,9 @@ class IndexHandler(tornado.web.RequestHandler):
 def make_app() -> tornado.web.Application:
     app = tornado.web.Application([
         (r"/", IndexHandler),
-        (r"/cipher/atbash/", AtbashCipher)
+        (r"/cipher/atbash/", AtbashCipherHandler),
+        (r"/cipher/caesar/", CaesarCipherHandler),
+        (r"/cipher/affine/", AffineCipherHandler),
     ])
 
     app.listen(PORT)
@@ -67,7 +116,6 @@ def make_app() -> tornado.web.Application:
 
 
 if __name__ == '__main__':
-
     app = make_app()
 
     print(f"Application listening on port {PORT}")
