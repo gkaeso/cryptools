@@ -1,11 +1,9 @@
 from http import HTTPStatus
 import json
-import typing
 from typing import Optional, Awaitable, Any
 
 import tornado.web
 import tornado.ioloop
-from tornado import httputil
 
 import cryptools
 
@@ -97,14 +95,8 @@ class AffineCipherHandler(BaseCipherHandler):
             self.write({'error': self.error})
 
 
-class IndexHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write('Dummy GET page')
-
-
 def make_app() -> tornado.web.Application:
     app = tornado.web.Application([
-        (r"/", IndexHandler),
         (r"/cipher/atbash/", AtbashCipherHandler),
         (r"/cipher/caesar/", CaesarCipherHandler),
         (r"/cipher/affine/", AffineCipherHandler),
