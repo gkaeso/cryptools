@@ -142,3 +142,10 @@ Asynchronous paradigm implemented using **tornado**.
 Unit testing made with **unittest**. Tests made with **Postman**.
 
 _N.B._ All ciphers in the app use JSON as input / output.
+
+_______________
+
+
+## License
+
+This repository uses the [MIT License](/LICENSE).
