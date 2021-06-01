@@ -139,7 +139,6 @@ Containerisation is made possible with **Docker**.
 
 Asynchronous paradigm implemented using **tornado**.
 
-Unit testing made with **unittest**
-Tests made with **Postman**.
+Unit testing made with **unittest**. Tests made with **Postman**.
 
 _N.B._ All ciphers in the app use JSON as input / output.
